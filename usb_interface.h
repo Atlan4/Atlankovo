@@ -125,11 +125,17 @@
 #define USB_REQ_GET_DESCRIPTOR                  0x06
 #define USB_REQ_SET_DESCRIPTOR                  0x07
 #define USB_REQ_GET_CONFIGURATION               0x08
-#define USB_REQ_SET_CONFIGURATION               0x09
+#define USB_REQ_SET_CONFIGURATION               0x09  // else if (setup.bmRequestType == 0x00 && setup.bRequest == 0x09) // SET_CONFIGURATION
 #define USB_REQ_GET_INTERFACE                   0x0A
 #define USB_REQ_SET_INTERFACE                   0x0B
 #define USB_REQ_SYNCH_FRAME                     0x0C
 
+//----------------------------------------------------------------------------------------------------------------------------------
+//Non Standard requests
+
+ // CDC: GET_LINE_CODING
+#define USB_GET_LINE_CODING                   0x21 //else if (setup.bmRequestType == 0xA1 && setup.bRequest == 0x21) // CDC: GET_LINE_CODING
+#define USB_SET_LINE_CODING                   0x20 //else if (setup.bmRequestType == 0x21 && setup.bRequest == 0x20) // CDC: SET_LINE_CODING
 //----------------------------------------------------------------------------------------------------------------------------------
 
 #define USBC_BP_ISCR_DPDM_CHANGE_DETECT         0x00000010
