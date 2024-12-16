@@ -700,14 +700,24 @@ void usb_device_irq_handler(void)
                   {
                     if(usb_setup_packet.packet.wValue == 0xA1)
                     {
-                      ep0_send_buf(&lineCoding, sizeof(CDC_LINECODING));
+                      //ep0_send_buf(&lineCoding, sizeof(CDC_LINECODING));
                     
-                      ep0_data_length  = sizeof(vendorVersion);
-                      ep0_data_pointer = (uint8 *)&vendorVersion;
+                      ep0_data_length  = sizeof(CDC_LINECODING);
+                      ep0_data_pointer = (uint8 *)&lineCoding;
                     }
                   }
                     // CDC: SET_LINE_CODING
                   else if(usb_setup_packet.packet.bRequest == 0x20)
+                  {
+                    if(usb_setup_packet.packet.wValue == 0x21)
+                    {
+                      
+                      ep0_data_length  = sizeof(vendorAttach);
+                      ep0_data_pointer = (uint8 *)&vendorAttach;
+                    }
+                  }
+                  // CDC: SET_CONTROL_LINE_STATE
+                  else if(usb_setup_packet.packet.bRequest == 0x22)
                   {
                     if(usb_setup_packet.packet.wValue == 0x21)
                     {
