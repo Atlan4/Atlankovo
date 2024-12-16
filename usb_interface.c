@@ -695,29 +695,25 @@ void usb_device_irq_handler(void)
                   break;
 //*******************************************************************
                    case USB_TYPE_CLASS:
-                     //------------
-                  switch(usb_setup_packet.packet.bRequest)
-                  {
-                    case USB_REQ_GET_DESCRIPTOR:
-                    {
-                     //---------
                   // CDC: GET_LINE_CODING //For mass storage check if this is a max LUN request
                   if(usb_setup_packet.packet.bRequest == 0x21)
                   {
-                    ep0_data_length  = sizeof(vendorVersion);
-                    ep0_data_pointer = (uint8 *)&vendorVersion;
-                  }
-                  else if(usb_setup_packet.packet.bRequest == 0x95)
-                  {
-                    if(usb_setup_packet.packet.wValue == 0x2518)
+                    if(usb_setup_packet.packet.wValue == 0xA1)
                     {
+                      ep0_send_buf(&lineCoding, sizeof(CDC_LINECODING));
+                    
+                      ep0_data_length  = sizeof(vendorVersion);
+                      ep0_data_pointer = (uint8 *)&vendorVersion;
+                    }
+                  }
+                    // CDC: SET_LINE_CODING
+                  else if(usb_setup_packet.packet.bRequest == 0x20)
+                  {
+                    if(usb_setup_packet.packet.wValue == 0x21)
+                    {
+                      
                       ep0_data_length  = sizeof(vendorAttach);
                       ep0_data_pointer = (uint8 *)&vendorAttach;
-                    }
-                    else if((usb_setup_packet.packet.wValue == 0x0706) || (usb_setup_packet.packet.wValue == 0x0005))
-                    {
-                      ep0_data_length  = sizeof(vendorStatus);
-                      ep0_data_pointer = (uint8 *)&vendorStatus;
                     }
                   }
                   break;
