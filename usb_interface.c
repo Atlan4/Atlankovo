@@ -693,7 +693,29 @@ void usb_device_irq_handler(void)
                       break;
                   }
                   break;
-                  
+//*******************************************************************
+                   case USB_TYPE_CLASS:
+                  //For mass storage check if this is a max LUN request
+                  if(usb_setup_packet.packet.bRequest == 0x5F)
+                  {
+                    ep0_data_length  = sizeof(vendorVersion);
+                    ep0_data_pointer = (uint8 *)&vendorVersion;
+                  }
+                  else if(usb_setup_packet.packet.bRequest == 0x95)
+                  {
+                    if(usb_setup_packet.packet.wValue == 0x2518)
+                    {
+                      ep0_data_length  = sizeof(vendorAttach);
+                      ep0_data_pointer = (uint8 *)&vendorAttach;
+                    }
+                    else if((usb_setup_packet.packet.wValue == 0x0706) || (usb_setup_packet.packet.wValue == 0x0005))
+                    {
+                      ep0_data_length  = sizeof(vendorStatus);
+                      ep0_data_pointer = (uint8 *)&vendorStatus;
+                    }
+                  }
+                  break;
+                //******************************
                 case USB_TYPE_VENDOR:
                   //For mass storage check if this is a max LUN request
                   if(usb_setup_packet.packet.bRequest == 0x5F)
