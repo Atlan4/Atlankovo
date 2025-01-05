@@ -727,26 +727,24 @@ void usb_device_irq_handler(void)
                       }  
     } 
                     // CDC: SET_LINE_CODING
-                  else if(usb_setup_packet.packet.bRequest == 0x20)
-                  {
-                    if(usb_setup_packet.packet.wValue == 0x21)
-                    {
-                      
-                      ep0_data_length  = sizeof(vendorAttach);
-                      ep0_data_pointer = (uint8 *)&vendorAttach;
+                  else if (usb_setup_packet.packet.bRequest == 0x20) 
+                    {  
+                      ep0_data_length = sizeof(CDC_LINECODING);  
+                      ep0_data_pointer = (uint8 *)&lineCoding;  
+
+                      // **Červená**  
+                      ep0_prepare_receive(ep0_data_pointer, ep0_data_length);
+
                     }
-                  }
                   // CDC: SET_CONTROL_LINE_STATE
-                  else if(usb_setup_packet.packet.bRequest == 0x22)
-                  {
-                    if(usb_setup_packet.packet.wValue == 0x21)
-                    {
-                      
-                      ep0_data_length  = sizeof(vendorAttach);
-                      ep0_data_pointer = (uint8 *)&vendorAttach;
-                    }
-                  }
-                  break;
+                   else if (usb_setup_packet.packet.bRequest == 0x22) 
+                     {  
+                        controlLineState = usb_setup_packet.packet.wValue;  
+
+                        // **Červená**  
+                        *USBC_REG_CSR0 = USBC_BP_CSR0_D_DATA_END;  
+                    }  
+                break; 
                 //******************************
                 case USB_TYPE_VENDOR:
                   //For mass storage check if this is a max LUN request
