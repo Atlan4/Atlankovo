@@ -702,55 +702,40 @@ void usb_device_irq_handler(void)
                   }
                   break;
 //*******************************************************************
-                   case USB_TYPE_CLASS:
+                  case USB_TYPE_CLASS:
                   // CDC: GET_LINE_CODING //For mass storage check if this is a max LUN request
-                  if(usb_setup_packet.packet.bRequest == 0x21)
-                  {
-                    ep0_data_length  = sizeof(CDC_LINECODING);
-                    ep0_data_pointer = (uint8 *)&lineCoding;
-                    
-                     // **Oranžová**
-                     if (ep0_data_length) 
-                     {  
-                        uint32 length = ep0_data_length;  
-                        if (ep0_data_length > USB_EP0_FIFO_SIZE) 
-                        {  
-                          length = USB_EP0_FIFO_SIZE;  
-                        }  
-
-                        usb_write_to_fifo((void *)USBC_REG_EPFIFO0, (void *)ep0_data_pointer, length);  
-                        ep0_data_length -= length;  
-
-                        *USBC_REG_CSR0 = USBC_BP_CSR0_D_TX_PKT_READY;  
-
-                        if (ep0_data_length) 
-                        {  
-                          ep0_data_pointer += length;  
-                          usb_ep0_state = EP0_IN_DATA_PHASE;  
-                        } else
-                          {  
-                            *USBC_REG_CSR0 = USBC_BP_CSR0_D_DATA_END;  
-                            usb_ep0_state = EP0_IDLE;  
-                          }  
-                      }  
-    } 
+                    if(usb_setup_packet.packet.bRequest == 0x21)
+                    {
+                      if (usb_setup_packet.packet.wValue == 0xA1)  // GET_LINE_CODING
+                      {
+                        // Skontrolujte, či je požiadavka typu USB_TYPE_CLASS
+                        if (usb_setup_packet.packet.bmRequestType == USB_TYPE_CLASS)
+                        {
+                          // Pripraviť dáta pre odpoveď GET_LINE_CODING
+                          ep0_data_length  = sizeof(LINE_CODING);  // Nastaviť dĺžku dát na veľkosť štruktúry LINE_CODING
+                          ep0_data_pointer = (uint8 *)&lineCoding; // Ukazovateľ na štruktúru LINE_CODING s nastaveniami (baud rate, stop bits, atď.)
+                        }
+                      }
+                    } 
                     // CDC: SET_LINE_CODING
-                  else if (usb_setup_packet.packet.bRequest == 0x20) 
-                    {  
-                      ep0_data_length = sizeof(CDC_LINECODING);  
-                      ep0_data_pointer = (uint8 *)&lineCoding;  
+                    else if (usb_setup_packet.packet.bRequest == 0x20) 
+                      {  
+                        if (usb_setup_packet.packet.wValue == 0x21)  // SET_LINE_CODING
+                        {
+                          ep0_data_length = sizeof(CDC_LINECODING);  
+                          ep0_data_pointer = (uint8 *)&lineCoding;  
 
-                      // **Červená**  
-                      ep0_prepare_receive(ep0_data_pointer, ep0_data_length);
+                        }
 
-                    }
+                      }
                   // CDC: SET_CONTROL_LINE_STATE
                    else if (usb_setup_packet.packet.bRequest == 0x22) 
                      {  
-                        controlLineState = usb_setup_packet.packet.wValue;  
-
-                        // **Červená**  
-                        *USBC_REG_CSR0 = USBC_BP_CSR0_D_DATA_END;  
+                        if (usb_setup_packet.packet.wValue == 0x21)  // SET_CONTROL_LINE_STATE
+                        {
+                          // Tento príkaz slúži na nastavenie stavu riadiacich liniek (napr. DTR, RTS)
+                          // Môžete implementovať logiku na spracovanie týchto signálov
+                        } 
                     }  
                 break; 
                 //******************************
