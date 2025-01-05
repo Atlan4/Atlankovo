@@ -698,14 +698,34 @@ void usb_device_irq_handler(void)
                   // CDC: GET_LINE_CODING //For mass storage check if this is a max LUN request
                   if(usb_setup_packet.packet.bRequest == 0x21)
                   {
-                    if(usb_setup_packet.packet.wValue == 0xA1)
-                    {
-                      //ep0_send_buf(&lineCoding, sizeof(CDC_LINECODING));
+                    ep0_data_length  = sizeof(CDC_LINECODING);
+                    ep0_data_pointer = (uint8 *)&lineCoding;
                     
-                      ep0_data_length  = sizeof(CDC_LINECODING);
-                      ep0_data_pointer = (uint8 *)&lineCoding;
-                    }
-                  }
+                     // **Oranžová**
+                     if (ep0_data_length) 
+                     {  
+                        uint32 length = ep0_data_length;  
+                        if (ep0_data_length > USB_EP0_FIFO_SIZE) 
+                        {  
+                          length = USB_EP0_FIFO_SIZE;  
+                        }  
+
+                        usb_write_to_fifo((void *)USBC_REG_EPFIFO0, (void *)ep0_data_pointer, length);  
+                        ep0_data_length -= length;  
+
+                        *USBC_REG_CSR0 = USBC_BP_CSR0_D_TX_PKT_READY;  
+
+                        if (ep0_data_length) 
+                        {  
+                          ep0_data_pointer += length;  
+                          usb_ep0_state = EP0_IN_DATA_PHASE;  
+                        } else
+                          {  
+                            *USBC_REG_CSR0 = USBC_BP_CSR0_D_DATA_END;  
+                            usb_ep0_state = EP0_IDLE;  
+                          }  
+                      }  
+    } 
                     // CDC: SET_LINE_CODING
                   else if(usb_setup_packet.packet.bRequest == 0x20)
                   {
