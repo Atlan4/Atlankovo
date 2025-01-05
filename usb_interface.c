@@ -34,6 +34,14 @@ union
   USB_Setup_Packet packet;
 } usb_setup_packet;
 
+LINE_CODING lineCoding = {
+    .dwDTERate = 9600,     // Default baud rate
+    .bCharFormat = 0,      // 1 stop bit (0 = 1 stop bit, 1 = 1.5 stop bits, 2 = 2 stop bits)
+    .bParityType = 0,      // No parity (0 = none, 1 = odd, 2 = even)
+    .bDataBits = 8         // 8 data bits
+};
+
+
 //----------------------------------------------------------------------------------------------------------------------------------
 //In original code the register is written as byte, which might be wrong since some data is shifted 8 bits to the left
 //So using 32 bit register here
