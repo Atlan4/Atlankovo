@@ -266,7 +266,7 @@
 #define REPORT_DESCRIPTOR                     34
 
 //----------------------------------------------------------------------------------------------------------------------------------
-
+/*
 typedef union PACKED
 {
     uint8_t data[7];
@@ -278,6 +278,13 @@ typedef union PACKED
         uint8_t bDataBits; // 5, 6, 7, 8, 16
     };
 } CDC_LINECODING;
+*/
+typedef struct {
+    uint32  dwDTERate;       // Baud rate (4 byte)
+    uint8   bCharFormat;     // Stop bits (1 byte)
+    uint8   bParityType;     // Parity (1 byte)
+    uint8   bDataBits;       // Data bits (1 byte)
+} __attribute__ ((packed)) LINE_CODING;
 //***********************
 
 typedef struct
